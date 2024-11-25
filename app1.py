@@ -1,7 +1,6 @@
-# źródło danych [https://www.kaggle.com/c/titanic/](https://www.kaggle.com/c/titanic)
-
 import streamlit as st
 import pickle
+import joblib  # Dodano dla obsługi alternatywnego ładowania modelu
 from datetime import datetime
 
 # Importowanie znanych bibliotek
@@ -13,7 +12,7 @@ pathlib.PosixPath = pathlib.WindowsPath
 
 # Wczytanie wcześniej wytrenowanego modelu
 filename = "model.sv"
-model = pickle.load(open(filename, 'rb'))
+model = joblib.load(filename)  # Użycie joblib dla lepszej zgodności
 
 # Słowniki do mapowania zakodowanych zmiennych na etykiety
 pclass_d = {0: "Pierwsza", 1: "Druga", 2: "Trzecia"}
@@ -23,7 +22,7 @@ sex_d = {0: "Kobieta", 1: "Mężczyzna"}  # Dodano słownik płci do mapowania w
 def main():
     # Konfiguracja strony aplikacji Streamlit
     st.set_page_config(page_title="Aplikacja do przewidywania przeżycia na Titanicu")
-    
+
     # Kontenery dla układu strony
     overview = st.container()
     left, right = st.columns(2)
@@ -46,7 +45,7 @@ def main():
         
         # Przycisk wyboru portu zaokrętowania
         embarked_radio = st.radio("Port Zaokrętowania", list(embarked_d.keys()), format_func=lambda x: embarked_d[x])
-    
+
     # Dane wejściowe w prawej kolumnie
     with right:
         # Suwak dla wieku, bazujący na oryginalnym zakresie danych (min: 0.42, max: 80)
@@ -57,18 +56,18 @@ def main():
         
         # Suwak dla opłaty za przejazd, bazujący na danych (min: 0, max: 512)
         fare_slider = st.slider("Opłata za przejazd", min_value=0.0, max_value=512.0, value=32.0)
-    
+
     # Sekcja przewidywania
     with prediction:
         st.subheader("Czy pasażer przeżyłby?")
-        
+
         # Przygotowanie danych wejściowych do przewidywania
         input_data = [[pclass_radio, sex_radio, age_slider, family_slider, fare_slider, embarked_radio]]
-        
+
         # Wykonanie przewidywania
         prediction = model.predict(input_data)
         prediction_proba = model.predict_proba(input_data)
-        
+
         # Wyświetlenie wyniku
         if prediction[0] == 1:
             st.success(f"Pasażer przeżyłby rejs z prawdopodobieństwem {prediction_proba[0][1] * 100:.2f}%.")
