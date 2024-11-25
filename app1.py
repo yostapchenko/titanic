@@ -1,18 +1,17 @@
 import streamlit as st
 import pickle
-import joblib  # Dodano dla obsługi alternatywnego ładowania modelu
 from datetime import datetime
-
-# Importowanie znanych bibliotek
-import pathlib
-from pathlib import Path
-
-temp = pathlib.PosixPath
-pathlib.PosixPath = pathlib.WindowsPath
 
 # Wczytanie wcześniej wytrenowanego modelu
 filename = "model.sv"
-model = joblib.load(filename)  # Użycie joblib dla lepszej zgodności
+
+# Załaduj model w odpowiedni sposób
+try:
+    with open(filename, "rb") as file:
+        model = pickle.load(file)
+except FileNotFoundError:
+    st.error("Model file not found. Please ensure 'model.sv' is in the application directory.")
+    st.stop()
 
 # Słowniki do mapowania zakodowanych zmiennych na etykiety
 pclass_d = {0: "Pierwsza", 1: "Druga", 2: "Trzecia"}
@@ -64,15 +63,19 @@ def main():
         # Przygotowanie danych wejściowych do przewidywania
         input_data = [[pclass_radio, sex_radio, age_slider, family_slider, fare_slider, embarked_radio]]
 
-        # Wykonanie przewidywania
-        prediction = model.predict(input_data)
-        prediction_proba = model.predict_proba(input_data)
+        try:
+            # Wykonanie przewidywania
+            prediction = model.predict(input_data)
+            prediction_proba = model.predict_proba(input_data)
 
-        # Wyświetlenie wyniku
-        if prediction[0] == 1:
-            st.success(f"Pasażer przeżyłby rejs z prawdopodobieństwem {prediction_proba[0][1] * 100:.2f}%.")
-        else:
-            st.error(f"Pasażer nie przeżyłby rejsu z prawdopodobieństwem {prediction_proba[0][0] * 100:.2f}%.")
+            # Wyświetlenie wyniku
+            if prediction[0] == 1:
+                st.success(f"Pasażer przeżyłby rejs z prawdopodobieństwem {prediction_proba[0][1] * 100:.2f}%.")
+            else:
+                st.error(f"Pasażer nie przeżyłby rejsu z prawdopodobieństwem {prediction_proba[0][0] * 100:.2f}%.")
+        except Exception as e:
+            st.error(f"Error making prediction: {e}")
 
 if __name__ == '__main__':
     main()
+
