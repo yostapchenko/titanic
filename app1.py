@@ -28,7 +28,7 @@ def main():
     prediction = st.container()
 
     # Zmiana obrazu na bardziej adekwatny do tematyki Titanica
-    st.image("https://upload.wikimedia.org/wikipedia/commons/f/fd/RMS_Titanic_3.jpg")
+    st.image("https://gfx.planeta.pl/var/g3-planeta/storage/images/newsy/powstanie-titanic-ii-zbuduja-identyczny-statek/7420688-1-pol-PL/Powstanie-Titanic-II.-Buduja-statek_article.webp")
 
     # Sekcja przeglądowa
     with overview:
@@ -43,7 +43,7 @@ def main():
         pclass_radio = st.radio("Klasa Pasażerska", list(pclass_d.keys()), format_func=lambda x: pclass_d[x])
         
         # Przycisk wyboru portu zaokrętowania
-        embarked_radio = st.radio("Port Zaokrętowania", list(embarked_d.keys()), format_func=lambda x: embarked_d[x])
+        embarked_radio = st.radio("Port", list(embarked_d.keys()), format_func=lambda x: embarked_d[x])
 
     # Dane wejściowe w prawej kolumnie
     with right:
@@ -70,9 +70,9 @@ def main():
 
             # Wyświetlenie wyniku
             if prediction[0] == 1:
-                st.success(f"Pasażer przeżyłby rejs z prawdopodobieństwem {prediction_proba[0][1] * 100:.2f}%.")
+                st.success(f"Pasażer przeżyłby z prawdopodobieństwem {prediction_proba[0][1] * 100:.2f}%.")
             else:
-                st.error(f"Pasażer nie przeżyłby rejsu z prawdopodobieństwem {prediction_proba[0][0] * 100:.2f}%.")
+                st.error(f"Pasażer nie przeżyłby z prawdopodobieństwem {prediction_proba[0][0] * 100:.2f}%.")
         except Exception as e:
             st.error(f"Error making prediction: {e}")
 
